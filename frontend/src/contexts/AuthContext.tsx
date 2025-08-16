@@ -4,11 +4,12 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { apiClient } from '@/lib/api';
 
 interface User {
-  customer_id: number;
-  first_name: string;
-  last_name: string;
+  id: number;
   email: string;
+  full_name: string;
+  is_active: boolean;
   is_admin: boolean;
+  created_at: string;
 }
 
 interface AuthContextType {
@@ -51,24 +52,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    // Sanitize inputs to prevent XSS
-    const sanitizedEmail = email.trim().toLowerCase();
-    const response = await apiClient.post('/auth/login', { 
-      email: sanitizedEmail, 
-      password 
+    const formData = new FormData();
+    formData.append('username', email);
+    formData.append('password', password);
+    
+    const response = await apiClient.post('/auth/login', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     });
+    
     const { access_token, user: userData } = response.data;
     if (typeof window !== 'undefined') {
       localStorage.setItem('access_token', access_token);
     }
-    // Sanitize user data before setting
-    const sanitizedUser = {
-      ...userData,
-      first_name: userData.first_name?.replace(/[<>"'&]/g, ''),
-      last_name: userData.last_name?.replace(/[<>"'&]/g, ''),
-      email: userData.email?.replace(/[<>"'&]/g, '')
-    };
-    setUser(sanitizedUser);
+    setUser(userData);
   };
 
   const logout = () => {

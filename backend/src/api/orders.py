@@ -1,30 +1,76 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from src.db.postgres import get_db
-from src.db.models import Order, Payment
-from src.schemas import OrderResponse
 from typing import List
+from db.postgres import get_db
+from db.models import User, Order, Product
+from api.auth import get_current_user
+from pydantic import BaseModel
 import logging
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+class OrderCreate(BaseModel):
+    product_id: int
+    quantity: int = 1
+
+class OrderResponse(BaseModel):
+    id: int
+    user_id: int
+    product_id: int
+    quantity: int
+    total_amount: float
+    status: str
+    created_at: str
+    
+    class Config:
+        from_attributes = True
+
 @router.get("/", response_model=List[OrderResponse])
-def list_orders(db: Session = Depends(get_db)):
-    """Get list of orders for the current user"""
+def get_user_orders(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get current user's orders"""
     try:
-        orders = db.query(Order).limit(20).all()
+        orders = db.query(Order).filter(Order.user_id == current_user.id).all()
         return orders
     except Exception as e:
-        logger.error(f"Error fetching orders: {e}")
+        logger.error(f"Error retrieving orders: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/stats")
-def get_order_stats():
-    """Get order statistics"""
-    return {
-        "total_orders": 0,
-        "pending_orders": 0,
-        "completed_orders": 0,
-        "message": "Order statistics will be implemented with user authentication"
-    }
+@router.post("/", response_model=OrderResponse)
+def create_order(
+    order_data: OrderCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a new order"""
+    try:
+        # Get product
+        product = db.query(Product).filter(Product.id == order_data.product_id).first()
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        # Calculate total
+        total_amount = product.price * order_data.quantity
+        
+        # Create order
+        order = Order(
+            user_id=current_user.id,
+            product_id=order_data.product_id,
+            quantity=order_data.quantity,
+            total_amount=total_amount
+        )
+        
+        db.add(order)
+        db.commit()
+        db.refresh(order)
+        
+        return order
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating order: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")

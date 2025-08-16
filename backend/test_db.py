@@ -1,34 +1,40 @@
-from src.api.postgres import engine, SessionLocal
-from src.db.models import User, Product, Order, Payment
+#!/usr/bin/env python3
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent / "src"))
 
-def test_connection():
+from sqlalchemy import create_engine, text
+from src.core.config import settings
+from src.db.models import Film
+from src.db.postgres import SessionLocal
+
+def test_database():
+    print(f"Database URL: {settings.database_url}")
+    
     try:
-        # Test engine connection
+        # Test connection
+        engine = create_engine(settings.database_url)
         with engine.connect() as conn:
-            from sqlalchemy import text
             result = conn.execute(text("SELECT 1"))
             print("[OK] Database connection successful")
         
-        # Test session
+        # Test data
         db = SessionLocal()
         try:
-            # Test basic queries
-            user_count = db.query(User).count()
-            print(f"[OK] Users table accessible - {user_count} records")
+            count = db.query(Film).count()
+            print(f"[OK] Found {count} films in database")
             
-            product_count = db.query(Product).count()
-            print(f"[OK] Products table accessible - {product_count} records")
-            
-            order_count = db.query(Order).count()
-            print(f"[OK] Orders table accessible - {order_count} records")
-            
-        except Exception as e:
-            print(f"[ERROR] Query error: {e}")
+            if count > 0:
+                sample = db.query(Film).first()
+                print(f"[OK] Sample film: {sample.title} (ID: {sample.film_id})")
+            else:
+                print("[WARNING] No films found in database")
+                
         finally:
             db.close()
             
     except Exception as e:
-        print(f"[ERROR] Connection failed: {e}")
+        print(f"[ERROR] Database error: {e}")
 
 if __name__ == "__main__":
-    test_connection()
+    test_database()

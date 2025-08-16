@@ -1,103 +1,102 @@
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, field_serializer, EmailStr
+from datetime import datetime, date
 from typing import Optional
-from datetime import datetime
+from decimal import Decimal
 
-# User Schemas
-class UserBase(BaseModel):
-    first_name: str = Field(..., min_length=1, max_length=50)
-    last_name: str = Field(..., min_length=1, max_length=50)
+# Auth Schemas
+class UserCreate(BaseModel):
+    first_name: str
+    last_name: str
     email: EmailStr
-
-class UserCreate(UserBase):
-    password: str = Field(..., min_length=8, max_length=100)
-    
-    @validator('password')
-    def validate_password(cls, v):
-        if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters long')
-        if not any(c.isupper() for c in v):
-            raise ValueError('Password must contain at least one uppercase letter')
-        if not any(c.islower() for c in v):
-            raise ValueError('Password must contain at least one lowercase letter')
-        if not any(c.isdigit() for c in v):
-            raise ValueError('Password must contain at least one digit')
-        return v
-
-class UserResponse(UserBase):
-    customer_id: int
-    is_admin: bool = False
-    activebool: bool = True
-    
-    class Config:
-        from_attributes = True
+    password: str
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class UserResponse(BaseModel):
+    customer_id: int
+    first_name: str
+    last_name: str
+    email: str
+    activebool: bool
+    is_admin: bool
+    oauth_provider: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
     token_type: str
     user: UserResponse
 
-# Product Schemas
-class ProductBase(BaseModel):
-    title: str
-    description: Optional[str] = None
-    rating: Optional[str] = None
-
-class ProductResponse(ProductBase):
+# Film/Product Schemas
+class FilmResponse(BaseModel):
     film_id: int
-    length: Optional[int] = None
+    title: str
+    description: Optional[str]
+    release_year: Optional[int]
+    rental_rate: Decimal
+    length: Optional[int]
+    rating: Optional[str]
+    
+    @field_serializer('rental_rate')
+    def serialize_rental_rate(self, value: Decimal) -> str:
+        return str(value)
     
     class Config:
         from_attributes = True
 
-# Review Schemas (for MongoDB)
-class ReviewBase(BaseModel):
-    product_id: int = Field(..., gt=0)
-    rating: int = Field(..., ge=1, le=5)
-    title: str = Field(..., min_length=1, max_length=100)
-    content: str = Field(..., min_length=1, max_length=2000)
-
-class ReviewCreate(ReviewBase):
-    pass
-
-class ReviewUpdate(BaseModel):
-    rating: Optional[int] = Field(None, ge=1, le=5)
-    title: Optional[str] = Field(None, min_length=1, max_length=100)
-    content: Optional[str] = Field(None, min_length=1, max_length=2000)
-
-class ReviewResponse(ReviewBase):
-    id: str
-    user_id: int
-    created_at: datetime
-    updated_at: datetime
-    helpful_count: int = 0
+# Actor Schemas
+class ActorResponse(BaseModel):
+    actor_id: int
+    first_name: str
+    last_name: str
     
     class Config:
         from_attributes = True
 
-# Order Schemas
-class OrderBase(BaseModel):
-    product_id: int = Field(..., gt=0)
-    quantity: int = Field(1, gt=0)
+# Category Schemas
+class CategoryResponse(BaseModel):
+    category_id: int
+    name: str
+    
+    class Config:
+        from_attributes = True
 
-class OrderCreate(OrderBase):
-    pass
+# Language Schemas
+class LanguageResponse(BaseModel):
+    language_id: int
+    name: str
+    
+    class Config:
+        from_attributes = True
 
-class OrderResponse(BaseModel):
+# Rental Schemas
+class RentalResponse(BaseModel):
     rental_id: int
-    rental_date: datetime
     customer_id: int
-    return_date: Optional[datetime] = None
+    inventory_id: int
+    rental_date: datetime
+    return_date: Optional[datetime]
     
     class Config:
         from_attributes = True
 
-# Generic Response Schemas
-class MessageResponse(BaseModel):
-    message: str
+class PaymentResponse(BaseModel):
+    payment_id: int
+    customer_id: int
+    rental_id: int
+    amount: Decimal
     
-class ErrorResponse(BaseModel):
-    detail: str
+    @field_serializer('amount')
+    def serialize_amount(self, value: Decimal) -> str:
+        return str(value)
+    
+    class Config:
+        from_attributes = True
+
+# Legacy aliases
+ProductResponse = FilmResponse
+OrderResponse = RentalResponse

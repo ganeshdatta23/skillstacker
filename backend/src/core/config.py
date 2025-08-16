@@ -1,14 +1,13 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
-import os
 
 class Settings(BaseSettings):
-    # Database
-    database_url: str
-    mongo_url: str
+    # Database URLs
+    database_url: str = "sqlite:///./skillstacker.db"  # Use SQLite by default
+    mongo_url: str = "mongodb://localhost:27017"
     
     # Security
-    secret_key: str
+    secret_key: str = "your-super-secret-key-change-this-in-production-12345678901234567890"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     
@@ -19,10 +18,6 @@ class Settings(BaseSettings):
     # Environment
     environment: str = "development"
     debug: bool = True
-    
-    # OAuth (for future)
-    google_client_id: Optional[str] = None
-    google_client_secret: Optional[str] = None
     
     class Config:
         env_file = ".env"

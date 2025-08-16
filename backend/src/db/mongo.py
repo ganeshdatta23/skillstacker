@@ -1,23 +1,17 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from beanie import init_beanie
 from src.core.config import settings
+from typing import Optional
 
-mongo_client = None
-mongo_db = None
+_client: Optional[AsyncIOMotorClient] = None
 
-async def connect_to_mongo():
-    global mongo_client, mongo_db
-    mongo_client = AsyncIOMotorClient(settings.mongo_url)
-    mongo_db = mongo_client["skillstacker"]
-    
-    # Initialize beanie with document models
-    from src.db.mongo_models import Review
-    await init_beanie(database=mongo_db, document_models=[Review])
+async def get_mongo_client() -> AsyncIOMotorClient:
+    global _client
+    if _client is None:
+        _client = AsyncIOMotorClient(settings.mongo_url)
+    return _client
 
-async def close_mongo_connection():
-    global mongo_client
-    if mongo_client:
-        mongo_client.close()
-
-def get_mongo_db():
-    return mongo_db
+async def close_mongo_client():
+    global _client
+    if _client:
+        _client.close()
+        _client = None

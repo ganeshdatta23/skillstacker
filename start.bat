@@ -1,20 +1,21 @@
 @echo off
-echo Starting SkillStacker Full-Stack Application...
-echo.
-
-echo Starting Backend...
-start "Backend" cmd /k "cd backend && uvicorn src.main:app --reload"
-
-timeout /t 3 /nobreak > nul
-
-echo Starting Frontend...
-start "Frontend" cmd /k "cd frontend && npm run dev"
+echo Starting SkillStacker...
 
 echo.
-echo ✅ Application is starting!
+echo Initializing database...
+cd backend
+python init_db.py
+
 echo.
-echo Backend: http://localhost:8000
-echo Frontend: http://localhost:3000
-echo API Docs: http://localhost:8000/docs
+echo Starting backend server...
+echo Backend will be available at: http://localhost:8000
+echo API docs will be available at: http://localhost:8000/docs
 echo.
-pause
+echo Demo accounts:
+echo User: demo@skillstacker.com / demo123
+echo Admin: admin@skillstacker.com / admin123
+echo.
+echo Press Ctrl+C to stop the server
+echo.
+
+python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
