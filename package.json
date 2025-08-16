@@ -1,0 +1,62 @@
+{
+  "name": "skillstacker",
+  "version": "1.0.0",
+  "description": "🚀 Silicon Valley Grade Full-Stack Platform - Enterprise React + FastAPI Application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && uvicorn src.main:app --reload",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "npm run start:frontend",
+    "start:frontend": "cd frontend && npm start",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && pytest",
+    "test:frontend": "cd frontend && npm test",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && black . && isort . && flake8",
+    "lint:frontend": "cd frontend && npm run lint",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "setup": "npm run setup:backend && npm run setup:frontend",
+    "setup:backend": "cd backend && pip install -r requirements.txt",
+    "setup:frontend": "cd frontend && npm install"
+  },
+  "keywords": [
+    "fullstack",
+    "react",
+    "nextjs",
+    "fastapi",
+    "python",
+    "typescript",
+    "postgresql",
+    "mongodb",
+    "docker",
+    "enterprise",
+    "silicon-valley",
+    "production-ready"
+  ],
+  "author": {
+    "name": "SkillStacker Team",
+    "email": "team@skillstacker.com",
+    "url": "https://skillstacker.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/skillstacker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/skillstacker/issues"
+  },
+  "homepage": "https://skillstacker.com",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
