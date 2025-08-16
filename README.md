@@ -8,7 +8,7 @@
 [![Beginner Friendly](https://img.shields.io/badge/Beginner-Friendly-green)](./COMPLETE_PROJECT_GUIDE.md)
 [![Fully Documented](https://img.shields.io/badge/Fully-Documented-blue)](./backend/CRUD_OPERATIONS.md)
 
-A ** full-stack application** showcasing modern development practices, enterprise architecture, and Silicon Valley-grade code quality. **Perfect for beginners and experts alike!**
+A ** full-stack application** showcasing modern development practices, enterprise architecture!**
 
 > 📚 **New to programming?** Check out our [Complete Beginner's Guide](./COMPLETE_PROJECT_GUIDE.md) that explains everything in simple terms!
 
@@ -635,7 +635,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-**Built with ❤️ by developers, for developers and learners**
+**Built with ❤️ by Ganesh Datta Padamata**
 
 [⭐ Star this repo](https://github.com/yourusername/skillstacker) | [📚 Read the Guide](./COMPLETE_PROJECT_GUIDE.md) | [🔧 Try CRUD Operations](./backend/CRUD_OPERATIONS.md) | [🐛 Report Bug](https://github.com/yourusername/skillstacker/issues) | [💡 Request Feature](https://github.com/yourusername/skillstacker/issues)
 
